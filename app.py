@@ -10,7 +10,7 @@ DB_HOST = "db-eldor.ct6ei6agkus4.ap-south-1.rds.amazonaws.com"
 DB_NAME = "postgres"
 DB_USER = "postgres"
 DB_PASSWORD = "postgres"
-TABLE_NAME = "imdb_movies"
+TABLE_NAME = "tbl_eldor_imdb_movies"
 
 def get_db_connection():
     conn = None

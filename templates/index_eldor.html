@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Top IMDB Movies</title>
+    <link rel="stylesheet" href="static/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Top IMDB Movies</h1>
+
+        <div class="form-container">
+            <div id="add-movie-section">
+                <h2>Add New Movie</h2>
+                <form id="add-movie-form">
+                    <label for="title">Title:</label>
+                    <input type="text" id="title" name="title" required><br><br>
+                    <label for="year">Year:</label>
+                    <input type="number" id="year" name="year"><br><br>
+                    <label for="rating">Rating:</label>
+                    <input type="number" step="0.1" id="rating" name="rating"><br><br>
+                    <label for="runtime">Runtime:</label>
+                    <input type="text" id="runtime" name="runtime"><br><br>
+                    <button type="submit">Add Movie</button>
+                </form>
+            </div>
+
+            <div id="delete-movie-section">
+                <h2>Delete Movie</h2>
+                <form id="delete-movie-form">
+                    <label for="rank-to-delete">Rank to Delete:</label>
+                    <input type="number" id="rank-to-delete" name="rank" required><br><br>
+                    <button type="submit">Delete Movie</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="movie-list">
+        </div>
+    </div>
+
+    <script>
+        // JavaScript to fetch and display data, and handle add/delete actions
+        const ec2PublicIp = 'http://3.111.57.165:5000'; // Store EC2 public IP
+
+        async function fetchMovies() {
+            try {
+                const response = await fetch(`${ec2PublicIp}/movies`);
+                if (!response.ok) {
+                    console.error('Error fetching movies:', response.status, response.statusText);
+                    document.getElementById('movie-list').innerHTML = '<p class="error-message">Failed to load movies.</p>';
+                    return;
+                }
+                const movies = await response.json();
+                const movieListDiv = document.getElementById('movie-list');
+                movieListDiv.innerHTML = ''; // Clear existing data
+                const table = document.createElement('table');
+                table.innerHTML = `
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Title</th>
+                            <th>Year</th>
+                            <th>Rating</th>
+                            <th>Runtime</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                `;
+                const tbody = table.querySelector('tbody');
+                movies.forEach(movie => {
+                    const row = tbody.insertRow();
+                    row.insertCell().textContent = movie.Rank;
+                    row.insertCell().textContent = movie.Title;
+                    row.insertCell().textContent = movie.Year;
+                    row.insertCell().textContent = movie.Rating;
+                    row.insertCell().textContent = movie.Runtime;
+                });
+                movieListDiv.appendChild(table);
+            } catch (error) {
+                console.error('Error fetching movie data:', error);
+                document.getElementById('movie-list').innerHTML = '<p class="error-message">Failed to load movies.</p>';
+            }
+        }
+
+        async function addMovie(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            const movieData = Object.fromEntries(formData.entries());
+            try {
+                const response = await fetch(`${ec2PublicIp}/movies`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(movieData),
+                });
+                if (response.ok) {
+                    fetchMovies(); // Reload the movie list
+                    event.target.reset(); // Clear the form
+                } else {
+                    const errorData = await response.json();
+                    alert(`Failed to add movie: ${errorData.message || 'Unknown error'}`);
+                }
+            } catch (error) {
+                console.error('Error adding movie:', error);
+                alert('Failed to add movie');
+            }
+        }
+
+        async function deleteMovie(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            const rankToDelete = formData.get('rank');
+            try {
+                const response = await fetch(`${ec2PublicIp}/movies/${rankToDelete}`, {
+                    method: 'DELETE',
+                });
+                if (response.ok) {
+                    fetchMovies(); // Reload the movie list
+                    event.target.reset(); // Clear the form
+                } else {
+                    const errorData = await response.json();
+                    alert(`Failed to delete movie: ${errorData.message || 'Unknown error'}`);
+                }
+            } catch (error) {
+                console.error('Error deleting movie:', error);
+                alert('Failed to delete movie');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', fetchMovies);
+        document.getElementById('add-movie-form').addEventListener('submit', addMovie);
+        document.getElementById('delete-movie-form').addEventListener('submit', deleteMovie);
+    </script>
+</body>
+</html>
