@@ -23,7 +23,7 @@ This is a Flask web application that fetches and displays a list of top IMDB mov
     ```bash
     python app.py
     ```
-2.  Access the web interface by opening the `inde_eldor.html` file (hosted on S3). The JavaScript in this file will interact with the Flask API endpoints:
+2.  Access the web interface by opening the `index_eldor.html` file (hosted on S3). The JavaScript in this file will interact with the Flask API endpoints:
     * `/movies` (GET): To retrieve the list of movies.
     * `/movies` (POST): To add a new movie (sends JSON data).
     * `/movies/<rank_id>` (DELETE): To delete a movie by its Rank.
