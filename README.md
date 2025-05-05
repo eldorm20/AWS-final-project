@@ -37,6 +37,4 @@ This is a Flask web application that fetches and displays a list of top IMDB mov
 * CSS
 * JavaScript
 
-## Deployment
-
-(Add any specific deployment instructions here if applicable)
+## This is all about project, more or less! :)
